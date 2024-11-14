@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
-public class stopwords {
+public class  stopwords {
     private List<String> stopwords;
 
     public stopwords(String stopwordsFilePath) {

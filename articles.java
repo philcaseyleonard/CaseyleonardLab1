@@ -13,56 +13,49 @@ public class articles {
         String choice = inputScanner.nextLine().toLowerCase();
         inputScanner.close();
 
-        String filePath = "";
+        String folderPath = "";
         switch (choice) {
             case "football":
-                filePath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\football.txt";
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\football";
                 break;
             case "soccer":
-                filePath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\soccerarticle.txt";
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\soccer";
                 break;
             case "basketball":
-                filePath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\basketballarticle.txt";
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\basketball";
                 break;
             default:
                 System.out.println("Invalid choice. Please restart the program and choose a valid topic.");
                 return;
         }
 
-        List<String> article = new ArrayList<>();
-        try (Scanner articleScanner = new Scanner(new File(filePath))) {
-            while (articleScanner.hasNextLine()) {
-                String line = articleScanner.nextLine();
-                for (String word : line.split("\\s+")) {
-                    article.add(word);
-                }
+        List<String> allWords = new ArrayList<>();
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                processFile(file, allWords);
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred while reading the article.");
-            e.printStackTrace();
+        } else {
+            System.out.println("No article files found in the selected topic folder.");
+            return;
         }
 
-        System.out.println("\nArticle:");
-        for (String word : article) {
-            System.out.print(word + " ");
-        }
 
-        // Calculating original word count
         wordstats originalWordStats = new wordstats();
-        originalWordStats.calculateWordFrequencies(article);
+        originalWordStats.calculateWordFrequencies(allWords);
         int originalWordCount = originalWordStats.getTotalWordCount();
 
         stopwords stopwords = new stopwords("C:/Users/casey/Downloads/stopwords.txt");
-        stopwords.removestopwords(article);
+        stopwords.removestopwords(allWords);
 
         System.out.println("\nModified article:");
-        for (String word : article) {
+        for (String word : allWords) {
             System.out.print(word + " ");
         }
 
-        // Calculating word count after removing stop words
         wordstats modifiedWordStats = new wordstats();
-        modifiedWordStats.calculateWordFrequencies(article);
+        modifiedWordStats.calculateWordFrequencies(allWords);
         int modifiedWordCount = modifiedWordStats.getTotalWordCount();
 
         modifiedWordStats.sortWordFrequencies();
@@ -72,5 +65,33 @@ public class articles {
         System.out.println("Total Words before removal: " + originalWordCount);
         System.out.println("Total Words after removal: " + modifiedWordCount);
         System.out.println("Unique non-stop Words: " + modifiedWordStats.getUniqueWordCount());
+        Vocabulary vocabAnalyzer = new Vocabulary();
+        String articleWithRichestVocab = vocabAnalyzer.findRichestVocabularyArticle(folderPath);
+        System.out.println("\nThe article with the richest vocabulary is: " + articleWithRichestVocab);
+        vocabAnalyzer.findTopNRepeatedWords(folderPath, 10);
+        Attitude attitudeAnalyzer = new Attitude(
+                "C:/Users/casey/Downloads/positive.txt",
+                "C:/Users/casey/Downloads/negative.txt"
+        );
+        for (File file : files) {
+            List<String> articleWords = new ArrayList<>();
+            processFile(file, articleWords);
+            String sentiment = attitudeAnalyzer.analyzeSentiment(articleWords);
+            System.out.println("Sentiment of article " + file.getName() + ": " + sentiment);
+        }
+    }
+    public static void processFile(File file, List<String> allWords) {
+        try (Scanner articleScanner = new Scanner(file)) {
+            while (articleScanner.hasNextLine()) {
+                String line = articleScanner.nextLine();
+                for (String word : line.split("\\s+")) {
+                    allWords.add(word);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred while reading the article file: " + file.getName());
+            e.printStackTrace();
+        }
     }
 }
+

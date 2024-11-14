@@ -55,7 +55,7 @@ public class wordstats {
         return wordCountList.size();
     }
 
-    private static class WordCount {
+    public static class WordCount {
         String word;
         int count;
 
@@ -63,5 +63,8 @@ public class wordstats {
             this.word = word;
             this.count = count;
         }
+    }
+    public List<WordCount> getWordCountList() {
+        return wordCountList;
     }
 }
