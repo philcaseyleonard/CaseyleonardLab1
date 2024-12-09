@@ -1,0 +1,45 @@
+package LAB1;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.Scanner;
+
+public class AddArticle {
+    public static void addNewArticles() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the topic (soccer, football, or basketball) of the article you want to add:");
+        String topic = sc.nextLine();
+
+        String folderPath = "";
+        switch (topic) {
+            case "soccer":
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\soccer";
+                break;
+            case "football":
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\football";
+                break;
+            case "basketball":
+                folderPath = "C:\\Users\\casey\\IdeaProjects\\maybewillwork\\src\\LAB1\\football";
+                break;
+            default:
+                System.out.println("Invalid topic. Returning to main menu.");
+                return;
+        }
+
+        System.out.println("Enter the full path of the article to add (ensure that backslashes are always double):");
+        String articlePath = sc.nextLine().trim();
+        Path sourcePath = Paths.get(articlePath);
+        Path targetDirectory = Paths.get(folderPath);
+        Path targetPath = targetDirectory.resolve(sourcePath.getFileName());
+
+        try {
+            if (!Files.exists(targetDirectory)) {
+                Files.createDirectories(targetDirectory);
+            }
+            Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Successfully moved: " + sourcePath.getFileName());
+        } catch (IOException e) {
+            System.out.println("Failed to add the article: " + e.getMessage());
+        }
+    }
+}
